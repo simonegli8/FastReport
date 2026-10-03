@@ -1,11 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks>net48;net10.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>System.Drawing</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- Strong-named like FastReport.Compat and FastReport, which reference it. -->
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\FastReport.OpenSource.snk</AssemblyOriginatorKeyFile>
     <Description>Skia-based replacement for the System.Drawing.Common API surface used by FastReport, including a SkiaSharp implementation of FastReport.IGraphics.</Description>
     <!-- GDI+-compatible API: many members are intentionally undocumented mirrors of System.Drawing.Common. -->
     <NoWarn>$(NoWarn);CS1591</NoWarn>
@@ -16,6 +20,19 @@
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="4.153.1" />
     <PackageReference Include="SkiaSharp.HarfBuzz" Version="4.153.1" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="14.2.1.301" />
+  </ItemGroup>
+
+  <!--
+    .NET Framework: System.Drawing.dll holds both the primitives (Point, Color, ...) and GDI+, so this assembly
+    must not reference it and provides its own primitives instead (on .NET 10 they come from System.Drawing.Primitives).
+  -->
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)'=='.NETFramework'">
+    <PackageReference Include="PolySharp" Version="1.15.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Bcl.HashCode" Version="6.0.0" />
+    <Using Remove="System.Net.Http" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)'!='.NETFramework'">
+    <Compile Remove="Primitives\**;Polyfills\**" />
   </ItemGroup>
 
   <!--

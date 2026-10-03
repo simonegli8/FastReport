@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.ComponentModel;
 using FastReport.Utils;
-#if NETSTANDARD || NETCOREAPP
+#if NETSTANDARD || NETCOREAPP || SKIA
 using FastReport.Code.CodeDom.Compiler;
 #else
 using System.CodeDom.Compiler;

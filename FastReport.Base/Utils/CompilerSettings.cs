@@ -1,5 +1,5 @@
-﻿using System;
-#if NETSTANDARD || NETCOREAPP
+using System;
+#if NETSTANDARD || NETCOREAPP || SKIA
 using FastReport.Code.CodeDom.Compiler;
 using FastReport.Code.CSharp;
 #else

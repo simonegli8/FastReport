@@ -8,7 +8,7 @@ namespace System.Drawing;
 /// Vector formats (EMF/WMF) and TIFF/GIF encoding are not available in Skia: decoding them throws
 /// <see cref="ArgumentException"/>, and saving to them throws <see cref="NotSupportedException"/>.
 /// </remarks>
-public abstract class Image : ICloneable, IDisposable
+public abstract partial class Image : ICloneable, IDisposable
 {
     private const int DefaultJpegQuality = 75;
 

@@ -1,4 +1,4 @@
-﻿#if NETSTANDARD || NETCOREAPP
+#if NETSTANDARD || NETCOREAPP || SKIA
 using Microsoft.CodeAnalysis;
 
 using System.Reflection;

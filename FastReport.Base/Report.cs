@@ -915,7 +915,8 @@ namespace FastReport
                     "FastReport.Forms.Avalonia.dll",
 #endif
 
-#if CROSSPLATFORM || COREWIN
+#if (CROSSPLATFORM || COREWIN) && !NETFRAMEWORK
+                    // (on .NET Framework with SKIA the primitives are part of FastReport.Drawing.Skia)
                     "System.Drawing.Primitives",
 #endif
 
@@ -955,7 +956,10 @@ namespace FastReport
             {
                 if (measureGraphics == null)
                 {
-#if CROSSPLATFORM || MONO
+#if SKIA
+                    measureBitmap = new Bitmap(1, 1);
+                    measureGraphics = new SkiaGraphics(measureBitmap);
+#elif CROSSPLATFORM || MONO
                     measureBitmap = new Bitmap(1, 1);
                     measureGraphics = new GdiGraphics(measureBitmap);
 #else

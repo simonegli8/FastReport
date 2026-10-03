@@ -20,7 +20,7 @@ namespace System.Drawing;
 /// device space is the canvas' own coordinate space at the time this object was created.
 /// </para>
 /// </remarks>
-public sealed class Graphics : IDisposable
+public sealed partial class Graphics : IDisposable
 {
     private readonly SKCanvas canvas;
     private readonly bool ownsCanvas;
@@ -230,7 +230,7 @@ public sealed class Graphics : IDisposable
     {
         ArgumentNullException.ThrowIfNull(font);
         ArgumentNullException.ThrowIfNull(brush);
-        if (string.IsNullOrEmpty(s))
+        if (s is not { Length: > 0 })
             return;
 
         Touch();
@@ -278,7 +278,7 @@ public sealed class Graphics : IDisposable
     public SizeF MeasureString(string? text, Font font, SizeF layoutArea, StringFormat? stringFormat, out int charactersFitted, out int linesFilled)
     {
         ArgumentNullException.ThrowIfNull(font);
-        if (string.IsNullOrEmpty(text))
+        if (text is not { Length: > 0 })
         {
             charactersFitted = 0;
             linesFilled = 0;
@@ -305,7 +305,7 @@ public sealed class Graphics : IDisposable
             regions[i].MakeEmpty();
         }
 
-        if (string.IsNullOrEmpty(text) || ranges.Length == 0)
+        if (text is not { Length: > 0 } || ranges.Length == 0)
             return regions;
 
         bool vertical = IsVertical(stringFormat);

@@ -1,50 +1,41 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net462;net6.0</TargetFrameworks>
+    <TargetFrameworks>net48;net10.0</TargetFrameworks>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-    <TargetFrameworks>$(TargetFrameworks);net6.0-windows7.0</TargetFrameworks>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)'!='net462'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <!--
+    All targets draw with SkiaSharp through FastReport.Drawing.Skia instead of GDI+ (System.Drawing.Common
+    or, on .NET Framework, System.Drawing.dll). Windows Forms types are replaced too, because the real
+    Windows Forms API is built on the GDI+ System.Drawing types.
+  -->
   <PropertyGroup>
+    <DefineConstants>$(DefineConstants);SKIA</DefineConstants>
     <WindowsFormsReplacement>true</WindowsFormsReplacement>
-    <WindowsFormsReplacement Condition="'$(TargetFramework)'=='net462' or '$(TargetFramework)'=='net6.0-windows7.0'">false</WindowsFormsReplacement>
+    <!--
+      Directory.Build.props disables BuildProjectReferences (its Configuration check runs before the SDK
+      defaults Configuration, so it always applies). The Skia project reference must be built.
+    -->
+    <BuildProjectReferences>true</BuildProjectReferences>
   </PropertyGroup>
 
   <!--Explicit import Directory.Build.props (for old-style csproj)-->
   <Import Project="..\Directory.Build.props" Condition="'$(UsingMicrosoftNETSdk)' != 'true'"/>
-  
+
   <Import Project="$(SlnDir)\UsedPackages.version" />
-  <ItemGroup Condition="'$(TargetFramework)'!='net462'">
-    <PackageReference Include="System.Drawing.Common" Version="$(SystemDrawingCommonVersion)"/>
+  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(CodeAnalysisCSharpVersion)" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="$(CodeAnalysisVisualBasicVersion)" />
   </ItemGroup>
 
-  <ItemGroup Condition="$(WindowsFormsReplacement) == 'false'">
-    <Compile Remove="$(SourceCode)\WindowsForms\**" />
-    <Compile Remove="$(SourceCode)\DotNetClasses\UITypeEditor.cs"/>
-  </ItemGroup>
-
-  <PropertyGroup Condition="'$(WindowsFormsReplacement)'=='false'">
-    <UseWindowsForms>true</UseWindowsForms>
-  </PropertyGroup>
-  
+  <!-- IGraphics is compiled into FastReport.Drawing.Skia (against its types), and GdiGraphics is replaced by SkiaGraphics. -->
   <ItemGroup>
-    <None Include="$(SourceCode)\WindowsForms\**">
-      <Link>WindowsForms/%(RecursiveDir)%(Filename)%(Extension)</Link>
-    </None>
-    <None Include="$(SourceCode)\DotNetClasses\UITypeEditor.cs">
-      <Link>DotNetClasses\UITypeEditor.cs</Link>
-    </None>
+    <ProjectReference Include="..\..\FastReport.Drawing.Skia\FastReport.Drawing.Skia.csproj" />
+    <Compile Remove="$(SourceCode)\DotNetClasses\IGraphics.cs" />
+    <Compile Remove="$(SourceCode)\DotNetClasses\GdiGraphics.cs" />
   </ItemGroup>
 
   <ItemGroup>

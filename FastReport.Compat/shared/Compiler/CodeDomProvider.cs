@@ -1,4 +1,4 @@
-﻿#if NETSTANDARD2_0 || NETSTANDARD2_1 || NETCOREAPP
+#if NETSTANDARD2_0 || NETSTANDARD2_1 || NETCOREAPP || SKIA
 using Microsoft.CodeAnalysis;
 using System;
 using System.IO;
@@ -49,7 +49,7 @@ namespace FastReport.Code.CodeDom.Compiler
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static event EventHandler<string> Log;
 
-#if NETCOREAPP
+#if NETCOREAPP || NETFRAMEWORK
         /// <summary>
         /// If these assemblies were not found when 'trimmed', then skip them
         /// </summary>
@@ -110,13 +110,13 @@ namespace FastReport.Code.CodeDom.Compiler
             foreach (string reference in cp.ReferencedAssemblies)
             {
                 DebugMessage($"TRY ADD '{reference}'");
-#if NETCOREAPP
+#if NETCOREAPP || NETFRAMEWORK
                 try
                 {
 #endif
                     var metadata = GetReference(reference);
                     references.Add(metadata);
-#if NETCOREAPP
+#if NETCOREAPP || NETFRAMEWORK
                 }
                 catch (FileNotFoundException)
                 {
@@ -147,13 +147,13 @@ namespace FastReport.Code.CodeDom.Compiler
             foreach (string reference in cp.ReferencedAssemblies)
             {
                 DebugMessage($"TRY ADD '{reference}'");
-#if NETCOREAPP
+#if NETCOREAPP || NETFRAMEWORK
                 try
                 {
 #endif
                 var metadata = await GetReferenceAsync(reference, cancellationToken);
                 references.Add(metadata);
-#if NETCOREAPP
+#if NETCOREAPP || NETFRAMEWORK
                 }
                 catch (FileNotFoundException)
                 {
@@ -187,13 +187,13 @@ namespace FastReport.Code.CodeDom.Compiler
             {
                 if (!referencedAssemblies.Contains(assembly))
                 {
-#if NETCOREAPP
+#if NETCOREAPP || NETFRAMEWORK
                     try
                     {
 #endif
                         var metadata = GetReference(assembly);
                         references.Add(metadata);
-#if NETCOREAPP
+#if NETCOREAPP || NETFRAMEWORK
                     }
                     // If user run 'dotnet publish' with Trimmed - dotnet cut some extra assemblies.
                     // We skip this error, because some assemblies in 'assemblies' array may not be needed
@@ -214,13 +214,13 @@ namespace FastReport.Code.CodeDom.Compiler
             {
                 if (!referencedAssemblies.Contains(assembly))
                 {
-#if NETCOREAPP
+#if NETCOREAPP || NETFRAMEWORK
                     try
                     {
 #endif
                         var metadata = await GetReferenceAsync(assembly, ct);
                         references.Add(metadata);
-#if NETCOREAPP
+#if NETCOREAPP || NETFRAMEWORK
                     }
                     // If user run 'dotnet publish' with Trimmed - dotnet cut some extra assemblies.
                     // We skip this error, because some assemblies in 'assemblies' array may not be needed
@@ -243,6 +243,20 @@ namespace FastReport.Code.CodeDom.Compiler
                 BeforeEmitCompilation(this, eventArgs);
             }
         }
+
+#if NETFRAMEWORK
+        /// <summary>
+        /// .NET Framework cannot load GAC assemblies (Microsoft.CSharp, System.Core, facades, ...) by simple name,
+        /// but their files are in the runtime directory.
+        /// </summary>
+        private static MetadataReference TryGetFrameworkReference(string assemblyName)
+        {
+            string path = Path.Combine(RuntimeEnvironment.GetRuntimeDirectory(), assemblyName + ".dll");
+            if (!File.Exists(path))
+                path = Path.Combine(RuntimeEnvironment.GetRuntimeDirectory(), "WPF", assemblyName + ".dll");
+            return File.Exists(path) ? MetadataReference.CreateFromFile(path) : null;
+        }
+#endif
 
         public MetadataReference GetReference(string refDll)
         {
@@ -342,6 +356,14 @@ namespace FastReport.Code.CodeDom.Compiler
                     return result;
                 }
 
+#if NETFRAMEWORK
+                result = TryGetFrameworkReference(reference);
+                if (result != null)
+                {
+                    AddToCache(refDll, result);
+                    return result;
+                }
+#endif
 #if NETCOREAPP
                 // try load Assembly in runtime (for user script with custom assembly)
                 var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
@@ -457,6 +479,14 @@ namespace FastReport.Code.CodeDom.Compiler
                     return result;
                 }
 
+#if NETFRAMEWORK
+                result = TryGetFrameworkReference(reference);
+                if (result != null)
+                {
+                    AddToCache(refDll, result);
+                    return result;
+                }
+#endif
 #if NETCOREAPP
                 // try load Assembly in runtime (for user script with custom assembly)
                 var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
@@ -694,6 +724,8 @@ namespace FastReport.Code.CodeDom.Compiler
                 "NETSTANDARD"
 #elif NETCOREAPP
                 "NETCOREAPP"
+#else
+                "NETFRAMEWORK"
 #endif
                 );
 
@@ -733,6 +765,8 @@ namespace FastReport.Code.CodeDom.Compiler
                 "NETSTANDARD"
 #elif NETCOREAPP
                 "NETCOREAPP"
+#else
+                "NETFRAMEWORK"
 #endif
                 );
 

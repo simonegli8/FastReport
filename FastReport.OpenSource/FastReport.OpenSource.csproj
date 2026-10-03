@@ -1,12 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
  
   <PropertyGroup>
-    <TargetFrameworks>net6.0</TargetFrameworks>
+    <!--
+      Every target renders through SkiaSharp (FastReport.Drawing.Skia, referenced via FastReport.Compat):
+      no GDI+ and no Windows Forms, so the .NET Framework build is "cross-platform" code-wise as well.
+    -->
+    <TargetFrameworks>net48;net10.0</TargetFrameworks>
     <LangVersion>9.0</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-    <TargetFrameworks>$(TargetFrameworks);net462;net6.0-windows</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -63,8 +63,8 @@
     <DefineConstants>$(DefineConstants);DEBUG;</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'!='net462'">
-    <DefineConstants>$(DefineConstants);CROSSPLATFORM</DefineConstants>
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);CROSSPLATFORM;SKIA</DefineConstants>
   </PropertyGroup>
 
 
@@ -79,11 +79,8 @@
   <Import Project="..\FastReport.Base\FastReport.Base.csproj" />
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)'=='.NETFramework'">
-    <Reference Include="Accessibility" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Security" />
   </ItemGroup>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    FastReport draws with FastReport.Drawing.Skia on every target framework. On .NET Framework the SDK (and some
+    shared props) reference System.Drawing.dll (GDI+) and System.Windows.Forms.dll, whose types (Bitmap, Font,
+    Color, Form, ...) have the same full names as the Skia and FastReport.Compat ones, so they must not be referenced.
+    A project that needs them anyway can set KeepSystemDrawingReference=true.
+    Imported by every Directory.Build.targets in the repository.
+  -->
+  <Target Name="RemoveGdiPlusReferences"
+          BeforeTargets="ResolveAssemblyReferences"
+          Condition="'$(TargetFrameworkIdentifier)'=='.NETFramework' and '$(KeepSystemDrawingReference)'!='true'">
+    <ItemGroup>
+      <Reference Remove="System.Drawing" />
+      <Reference Remove="System.Windows.Forms" />
+      <Reference Remove="System.Design" />
+      <Reference Remove="Accessibility" />
+    </ItemGroup>
+  </Target>
+
+</Project>

@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>$(NetFrameworkMinimum);net6.0</TargetFrameworks>
+		<TargetFrameworks>$(NetFrameworkMinimum);net10.0</TargetFrameworks>
 		<PackageLicenseUrl>https://www.fast-report.com/products/fast-report-net/license</PackageLicenseUrl>
 		<Description>
 			Represents a plugin to extend PictureObject supports formats, for FastReport.OpenSource.
@@ -16,5 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\FastReport.OpenSource\FastReport.OpenSource.csproj" />
+    <!-- FastReport.OpenSource renders with SkiaSharp itself (through FastReport.Drawing.Skia); use the same version. -->
+    <PackageReference Update="SkiaSharp" Version="4.153.1" />
   </ItemGroup>
 </Project>

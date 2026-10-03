@@ -1,4 +1,4 @@
-﻿#if NETSTANDARD2_0 || NETSTANDARD2_1 || NETCOREAPP
+#if NETSTANDARD2_0 || NETSTANDARD2_1 || NETCOREAPP || SKIA
 using System;
 using System.Collections.Generic;
 using System.Reflection;

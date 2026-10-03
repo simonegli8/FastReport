@@ -1,7 +1,7 @@
-﻿<Project>
+<Project>
   <!--<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />-->
   
   <PropertyGroup>
-    <NetFrameworkMinimum>net462</NetFrameworkMinimum>
+    <NetFrameworkMinimum>net48</NetFrameworkMinimum>
   </PropertyGroup>
 </Project>

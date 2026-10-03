@@ -1,4 +1,4 @@
-﻿#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || (SKIA && NETFRAMEWORK)
 using System;
 using System.Collections;
 using System.Collections.Generic;

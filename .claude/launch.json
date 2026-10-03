@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "webforms-demo",
+      "runtimeExecutable": "C:\\Program Files\\IIS Express\\iisexpress.exe",
+      "runtimeArgs": ["/path:C:\\GitHub\\FastReport\\Demos\\OpenSource\\WebForms\\FastReport.OpenSource.WebForms.Demo", "/port:8081"],
+      "port": 8081
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Drawing.Text;
 using System.Globalization;
@@ -348,7 +348,7 @@ namespace FastReport.Utils
             // If we/user sets 'WebMode = true' before this check - Config shouln't change it (because check may be incorrect)
             if (!WebMode)
             {
-#if NETSTANDARD || NETCOREAPP
+#if NETSTANDARD || NETCOREAPP || SKIA
                 var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
                 foreach (var loadedAsmbly in loadedAssemblies)
                 {
@@ -401,7 +401,7 @@ namespace FastReport.Utils
             }
         }
 
-#if NETSTANDARD || NETCOREAPP
+#if NETSTANDARD || NETCOREAPP || SKIA
         /// <summary>
         /// Event fires before script compilation.
         /// </summary>

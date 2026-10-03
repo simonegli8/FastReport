@@ -1,6 +1,6 @@
 using System;
 
-#if NETSTANDARD || NETCOREAPP
+#if NETSTANDARD || NETCOREAPP || SKIA
 using FastReport.Code.CodeDom.Compiler;
 using FastReport.Code.CSharp;
 using FastReport.Code.VisualBasic;
@@ -21,7 +21,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Collections.Concurrent;
 using FastReport.Utils;
-#if SKIA
+#if SKIA && !FROPENSOURCE
 using HMACSHA1 = FastReport.Utils.DetravHMACSHA1;
 #endif
 
@@ -101,7 +101,13 @@ namespace FastReport.Code.Ms
                 // fix for old reports with "System.Windows.Forms.DataVisualization" in referenced assemblies 
                 if (s.Contains("System.Windows.Forms.DataVisualization"))
                     s = "FastReport.DataVisualization";
-#if (SKIA && !AVALONIA)
+#if SKIA && FROPENSOURCE && NETFRAMEWORK
+                // On .NET Framework System.Drawing.dll is GDI+, whose types clash with the Skia ones
+                // (the Skia assembly is referenced below instead).
+                if (s == "System.Drawing.dll" || s == "System.Drawing")
+                    continue;
+#endif
+#if (SKIA && !AVALONIA && !FROPENSOURCE)
                 if (s.Contains("FastReport.Compat"))
                     s = "FastReport.Compat.Skia";
                 if (s.Contains("FastReport.DataVisualization"))
@@ -111,7 +117,10 @@ namespace FastReport.Code.Ms
                 AddReferencedAssembly(assemblies, defaultPath, s);
             }
 
-#if SKIA
+#if SKIA && FROPENSOURCE
+            // Report scripts see System.Drawing types from the assembly FastReport itself was built against.
+            AddReferencedAssembly(assemblies, defaultPath, typeof(System.Drawing.Graphics).Assembly.GetName().Name);
+#elif SKIA
             AddReferencedAssembly(assemblies, defaultPath, "FastReport.SkiaDrawing");
 #endif
 

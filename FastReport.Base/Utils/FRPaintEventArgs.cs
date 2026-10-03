@@ -70,7 +70,11 @@ namespace FastReport.Utils
         /// <param name="scaleY">Y scale factor.</param>
         /// <param name="cache">Cache that contains graphics objects.</param>
         public FRPaintEventArgs(Graphics g, float scaleX, float scaleY, GraphicCache cache) :
+#if SKIA
+            this(SkiaGraphics.FromGraphics(g), scaleX, scaleY, cache)
+#else
             this(GdiGraphics.FromGraphics(g), scaleX, scaleY, cache)
+#endif
         {
         }
     }

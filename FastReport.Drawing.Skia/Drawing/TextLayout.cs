@@ -15,6 +15,12 @@ namespace System.Drawing;
 /// </remarks>
 internal sealed class TextLayout
 {
+    /// <summary>
+    /// GDI+ spaces glyphs about 3% wider with non-typographic formats. Measured against System.Drawing.Common:
+    /// default width = typographic width × 1.03 + 1/3 em, independent of font size and family.
+    /// </summary>
+    private const float GdiDefaultAdvanceScale = 1.03f;
+
     private const string Ellipsis = "…";
     private const float Epsilon = 1e-3f;
 
@@ -31,6 +37,7 @@ internal sealed class TextLayout
         this.font = font;
         this.format = format ?? new StringFormat();
         font.RightToLeft = (this.format.FormatFlags & StringFormatFlags.DirectionRightToLeft) != 0;
+        font.AdvanceScale = this.format.IsTypographic ? 1f : GdiDefaultAdvanceScale;
         Text = ProcessHotkeys(text, this.format.HotkeyPrefix);
         Padding = this.format.IsTypographic ? 0 : font.EmSize / 6f;
         tabStops = this.format.GetTabStops(out firstTabOffset);
@@ -67,6 +74,10 @@ internal sealed class TextLayout
     public int CharactersFitted => VisibleLineCount > 0 ? lines[VisibleLineCount - 1].End : 0;
 
     /// <summary>The measured size, including padding (GDI+ <c>MeasureString</c>).</summary>
+    /// <remarks>
+    /// Heights follow GDI+ (measured against System.Drawing.Common): a single line is ascent + descent
+    /// (no line gap), several lines are n × line spacing, and non-typographic formats add 1/8 em.
+    /// </remarks>
     public SizeF Size
     {
         get
@@ -76,12 +87,24 @@ internal sealed class TextLayout
             float width = 0;
             for (int i = 0; i < VisibleLineCount; i++)
                 width = Math.Max(width, lines[i].Width);
-            return new SizeF(width + 2 * Padding, VisibleLineCount * LineHeight);
+
+            float height = VisibleLineCount == 1 ? font.Ascent + font.Descent : VisibleLineCount * LineHeight;
+            if (!format.IsTypographic)
+                height += font.EmSize / 8f;
+            return new SizeF(width + 2 * Padding, height);
         }
     }
 
     public void Draw(SKCanvas canvas, RectangleF rect, SKPaint paint)
     {
+        // Like GDI+, decorations are at least one device pixel thick: a thinner aliased rectangle may contain
+        // no pixel center and vanish completely (e.g. Segoe UI 9pt at 96 DPI has a 0.7px underline).
+        var matrix = canvas.TotalMatrix;
+        float deviceScaleY = MathF.Sqrt(matrix.SkewX * matrix.SkewX + matrix.ScaleY * matrix.ScaleY);
+        float minThickness = deviceScaleY > 0 ? 1f / deviceScaleY : 0f;
+        float underlineThickness = Math.Max(font.UnderlineThickness, minThickness);
+        float strikeoutThickness = Math.Max(font.StrikeoutThickness, minThickness);
+
         for (int i = 0; i < VisibleLineCount; i++)
         {
             var line = lines[i];
@@ -93,9 +116,9 @@ internal sealed class TextLayout
                 DrawSpan(canvas, Text, line.Start, line.Length, x, baseline, paint);
 
             if (font.Underline && line.Width > 0)
-                canvas.DrawRect(SKRect.Create(x, baseline + font.UnderlinePosition, line.Width, font.UnderlineThickness), paint);
+                canvas.DrawRect(SKRect.Create(x, baseline + font.UnderlinePosition, line.Width, underlineThickness), paint);
             if (font.Strikeout && line.Width > 0)
-                canvas.DrawRect(SKRect.Create(x, baseline + font.StrikeoutPosition, line.Width, font.StrikeoutThickness), paint);
+                canvas.DrawRect(SKRect.Create(x, baseline + font.StrikeoutPosition, line.Width, strikeoutThickness), paint);
         }
     }
 

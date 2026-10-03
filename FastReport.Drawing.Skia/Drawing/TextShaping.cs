@@ -103,6 +103,7 @@ internal sealed class TextFont : IDisposable
     private readonly bool bold;
     private readonly bool italic;
     private bool rightToLeft;
+    private float advanceScale = 1f;
 
     public TextFont(Font font, float emSize, SKFontEdging edging, SKFontHinting hinting)
     {
@@ -161,6 +162,23 @@ internal sealed class TextFont : IDisposable
             if (rightToLeft != value)
             {
                 rightToLeft = value;
+                shapeCache.Clear();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Factor applied to glyph advances (not to glyph shapes), spreading glyphs apart as GDI+ does for
+    /// non-typographic string formats.
+    /// </summary>
+    public float AdvanceScale
+    {
+        get => advanceScale;
+        set
+        {
+            if (advanceScale != value)
+            {
+                advanceScale = value;
                 shapeCache.Clear();
             }
         }
@@ -265,8 +283,8 @@ internal sealed class TextFont : IDisposable
         {
             var hb = HarfBuzzTypeface.Get(item.Font.Typeface);
             var run = hb.Font != null
-                ? ShapeRun(hb, text, item, start, ref penX, result.CharAdvances)
-                : ShapeRunUnshaped(text, item, start, ref penX, result.CharAdvances);
+                ? ShapeRun(hb, text, item, start, advanceScale, ref penX, result.CharAdvances)
+                : ShapeRunUnshaped(text, item, start, advanceScale, ref penX, result.CharAdvances);
             if (run.Glyphs.Length > 0)
                 result.Runs.Add(run);
         }
@@ -275,7 +293,7 @@ internal sealed class TextFont : IDisposable
         return result;
     }
 
-    private static ShapedGlyphRun ShapeRun(HarfBuzzTypeface hb, string text, Item item, int spanStart, ref float penX, float[] charAdvances)
+    private static ShapedGlyphRun ShapeRun(HarfBuzzTypeface hb, string text, Item item, int spanStart, float advanceScale, ref float penX, float[] charAdvances)
     {
         using var buffer = new HbBuffer();
         // Passing the whole string with an item range lets HarfBuzz use the neighbouring text as context
@@ -293,7 +311,7 @@ internal sealed class TextFont : IDisposable
         var run = new ShapedGlyphRun(item.Font, infos.Length);
         for (int i = 0; i < infos.Length; i++)
         {
-            float advance = positions[i].XAdvance * scale;
+            float advance = positions[i].XAdvance * scale * advanceScale;
             int cluster = (int)infos[i].Cluster;
             run.Glyphs[i] = (ushort)infos[i].Codepoint;
             run.PenX[i] = penX;
@@ -309,11 +327,13 @@ internal sealed class TextFont : IDisposable
     }
 
     /// <summary>Fallback for typefaces whose font data cannot be read: one glyph per code point, no shaping.</summary>
-    private static ShapedGlyphRun ShapeRunUnshaped(string text, Item item, int spanStart, ref float penX, float[] charAdvances)
+    private static ShapedGlyphRun ShapeRunUnshaped(string text, Item item, int spanStart, float advanceScale, ref float penX, float[] charAdvances)
     {
         var span = text.AsSpan(item.Start, item.Length);
         var glyphs = item.Font.GetGlyphs(span);
         var widths = item.Font.GetGlyphWidths(span);
+        for (int i = 0; i < widths.Length; i++)
+            widths[i] *= advanceScale;
         var run = new ShapedGlyphRun(item.Font, glyphs.Length);
         int charIndex = item.Start;
         for (int i = 0; i < glyphs.Length; i++)

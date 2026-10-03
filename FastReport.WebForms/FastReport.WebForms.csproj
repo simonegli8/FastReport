@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>FastReport.WebForms</RootNamespace>
+    <AssemblyName>FastReport.WebForms</AssemblyName>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\FastReport.OpenSource.snk</AssemblyOriginatorKeyFile>
+
+    <PackageId>FastReport.OpenSource.WebForms</PackageId>
+    <Authors>Fast Reports Inc.</Authors>
+    <Company>Fast Reports Inc.</Company>
+    <Product>FastReport</Product>
+    <PackageTags>reporting, reports, pdf, svg, webforms, asp.net</PackageTags>
+    <Description>
+      ASP.NET Web Forms control for FastReport Open Source: renders prepared reports as inline SVG and
+      offers them as vector PDF downloads. Rendering uses SkiaSharp (FastReport.Drawing.Skia), not GDI+.
+    </Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Web" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FastReport.OpenSource\FastReport.OpenSource.csproj" />
+  </ItemGroup>
+
+</Project>

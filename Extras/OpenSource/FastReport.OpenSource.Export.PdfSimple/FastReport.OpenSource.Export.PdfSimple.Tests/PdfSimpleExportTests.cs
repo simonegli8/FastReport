@@ -1,4 +1,5 @@
 ﻿using FastReport.Export.PdfSimple;
+using System;
 using System.IO;
 using System.Text;
 using Xunit;

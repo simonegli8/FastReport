@@ -1742,7 +1742,11 @@ namespace FastReport
             if (renderer == null)
             {
                 using (Bitmap b = new Bitmap(1, 1))
+#if SKIA
+                using (IGraphics g = new SkiaGraphics(b))
+#else
                 using (IGraphics g = new GdiGraphics(b))
+#endif
                 {
                     RectangleF textRect = new RectangleF(
                       (AbsLeft + Padding.Left),

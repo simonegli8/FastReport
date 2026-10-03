@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    An ASP.NET Web Forms site (.NET Framework 4.8) showing FastReport.WebForms' ReportViewer.
+    Build it, then run the folder with IIS Express:
+      "C:\Program Files\IIS Express\iisexpress.exe" /path:<this folder> /port:8081
+  -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>FastReport.WebForms.Demo</RootNamespace>
+    <!-- Web Forms loads code-behind assemblies from the site's bin folder. -->
+    <OutputPath>bin\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <!-- Writes the binding redirects into bin\FastReport.OpenSource.WebForms.Demo.dll.config; see Web.config. -->
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\FastReport.WebForms\FastReport.WebForms.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Default.aspx" />
+    <Content Include="Web.config" />
+    <Compile Update="Default.aspx.cs" DependentUpon="Default.aspx" />
+  </ItemGroup>
+
+</Project>

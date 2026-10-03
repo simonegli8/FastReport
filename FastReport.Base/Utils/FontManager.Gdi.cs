@@ -1,5 +1,6 @@
 ﻿// available in FR.OS, FR.NET, FR.WPF
-#if !SKIA && !FRCORE && (!MONO || WPF)
+// FR.OS with SKIA uses FastReport.Drawing.Skia, whose font collections implement the same API.
+#if (!SKIA || FROPENSOURCE) && !FRCORE && (!MONO || WPF)
 using System;
 using System.Diagnostics;
 using System.Drawing;
