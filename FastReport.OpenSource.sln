@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.4.33110.190
+# Visual Studio Version 18
+VisualStudioVersion = 18.10.12224.181 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastReport.OpenSource", "FastReport.OpenSource\FastReport.OpenSource.csproj", "{62667265-5E09-444D-8218-244DE84804A7}"
 EndProject
@@ -62,6 +62,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastReport.OpenSource.Data.Ignite", "Extras\Core\FastReport.Data\FastReport.Data.Ignite\FastReport.OpenSource.Data.Ignite.csproj", "{46BE71B1-66A6-CB31-A340-410047E732AC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastReport.OpenSource.Data.GoogleSheets", "Extras\Core\FastReport.Data\FastReport.Data.GoogleSheets\FastReport.OpenSource.Data.GoogleSheets.csproj", "{6B1C8BF3-D72B-A8A3-6BA6-FD52758632C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastReport.Drawing.Skia", "FastReport.Drawing.Skia\FastReport.Drawing.Skia.csproj", "{71FFA9C1-D283-4E85-8EA5-33BBF37D89BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -226,6 +228,12 @@ Global
 		{6B1C8BF3-D72B-A8A3-6BA6-FD52758632C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B1C8BF3-D72B-A8A3-6BA6-FD52758632C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B1C8BF3-D72B-A8A3-6BA6-FD52758632C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71FFA9C1-D283-4E85-8EA5-33BBF37D89BC}.Academic|Any CPU.ActiveCfg = Release|Any CPU
+		{71FFA9C1-D283-4E85-8EA5-33BBF37D89BC}.Academic|Any CPU.Build.0 = Release|Any CPU
+		{71FFA9C1-D283-4E85-8EA5-33BBF37D89BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71FFA9C1-D283-4E85-8EA5-33BBF37D89BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71FFA9C1-D283-4E85-8EA5-33BBF37D89BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71FFA9C1-D283-4E85-8EA5-33BBF37D89BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

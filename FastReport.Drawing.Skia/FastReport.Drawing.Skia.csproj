@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>System.Drawing</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Description>Skia-based replacement for the System.Drawing.Common API surface used by FastReport, including a SkiaSharp implementation of FastReport.IGraphics.</Description>
+    <!-- GDI+-compatible API: many members are intentionally undocumented mirrors of System.Drawing.Common. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="4.153.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="4.153.1" />
+    <PackageReference Include="SkiaSharp.HarfBuzz" Version="4.153.1" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="14.2.1.301" />
+  </ItemGroup>
+
+  <!--
+    IGraphics is shared with FastReport.Compat as source, so that in this assembly it is compiled
+    against the Skia-backed System.Drawing types defined here instead of System.Drawing.Common.
+  -->
+  <ItemGroup>
+    <Compile Include="..\FastReport.Compat\shared\DotNetClasses\IGraphics.cs" Link="Compat\IGraphics.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <!--<ProjectReference Include="..\FastReport.Compat\FastReport.Compat\FastReport.Compat.csproj" />-->
+  </ItemGroup>
+
+</Project>
