@@ -56,6 +56,11 @@
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="4.153.1" />
     <PackageReference Include="SkiaSharp.HarfBuzz" Version="4.153.1" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="14.2.1.301" />
+    <!--
+      SVG images (VectorImage). Consumers get the assemblies at runtime only: on .NET Framework, Svg.Custom
+      defines System.Drawing.ColorConverter, like FastReport.Compat does.
+    -->
+    <PackageReference Include="Svg.Skia" Version="5.2.3" PrivateAssets="compile;contentfiles;analyzers;build" />
   </ItemGroup>
 
   <!--

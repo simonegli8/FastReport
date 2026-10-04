@@ -121,6 +121,14 @@ namespace FastReport.Utils
         {
             if (image == null)
                 return;
+#if SKIA
+            if (image is VectorImage vector)
+            {
+                // keeps the SVG source, so the image stays a vector image when loaded again
+                vector.Save(stream, vector.SvgData != null ? ImageFormat.Svg : ImageFormat.Png);
+                return;
+            }
+#endif
             if (image is Bitmap)
             {
                 if (format == ImageFormat.Icon)
@@ -154,7 +162,11 @@ namespace FastReport.Utils
                 || format == ImageFormat.Png
                 || format == ImageFormat.MemoryBmp)
             {
-                if (image is Bitmap)
+                if (image is Bitmap
+#if SKIA
+                    || image is VectorImage // rasterized when saved
+#endif
+                    )
                 {
                     if (format == ImageFormat.MemoryBmp)
                         throw new Exception(Res.Get("Export,Image,ImageParceFormatException"));

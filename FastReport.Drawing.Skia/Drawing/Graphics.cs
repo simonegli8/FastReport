@@ -443,6 +443,20 @@ public sealed partial class Graphics : IDisposable
         ArgumentNullException.ThrowIfNull(image);
         Touch();
 
+        if (image is VectorImage vector)
+        {
+            // Replays the drawing commands, so vector targets (PDF, SVG) keep vectors. A color key needs pixels
+            // and is not applied.
+            using var vectorColorFilter = attributes?.CreateColorFilter();
+            using var vectorPaint = vectorColorFilter == null ? null : new SKPaint { ColorFilter = vectorColorFilter };
+            int vectorSaveCount = canvas.Save();
+            if (mapping is SKMatrix vectorMapping)
+                canvas.Concat(vectorMapping);
+            vector.Draw(canvas, source, destination, vectorPaint);
+            canvas.RestoreToCount(vectorSaveCount);
+            return;
+        }
+
         var skImage = image.GetSKImage();
         using var keyed = attributes?.ApplyColorKey(skImage);
         using var colorFilter = attributes?.CreateColorFilter();

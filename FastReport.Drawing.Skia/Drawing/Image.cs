@@ -3,9 +3,9 @@ using SkiaSharp;
 
 namespace System.Drawing;
 
-/// <summary>Base class for raster images.</summary>
+/// <summary>Base class for raster (<see cref="Bitmap"/>) and vector (<see cref="VectorImage"/>) images.</summary>
 /// <remarks>
-/// Vector formats (EMF/WMF) and TIFF/GIF encoding are not available in Skia: decoding them throws
+/// Windows metafiles (EMF/WMF) and TIFF/GIF encoding are not available in Skia: decoding them throws
 /// <see cref="ArgumentException"/>, and saving to them throws <see cref="NotSupportedException"/>.
 /// </remarks>
 public abstract partial class Image : ICloneable, IDisposable
@@ -38,15 +38,29 @@ public abstract partial class Image : ICloneable, IDisposable
 
     public object? Tag { get; set; }
 
-    public static Image FromFile(string filename) => new Bitmap(filename);
+    public static Image FromFile(string filename)
+    {
+        ArgumentNullException.ThrowIfNull(filename);
+        return FromBytes(File.ReadAllBytes(filename));
+    }
 
-    public static Image FromFile(string filename, bool useEmbeddedColorManagement) => new Bitmap(filename);
+    public static Image FromFile(string filename, bool useEmbeddedColorManagement) => FromFile(filename);
 
-    public static Image FromStream(Stream stream) => new Bitmap(stream);
+    public static Image FromStream(Stream stream)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        using var memory = new MemoryStream();
+        stream.CopyTo(memory);
+        return FromBytes(memory.ToArray());
+    }
 
-    public static Image FromStream(Stream stream, bool useEmbeddedColorManagement) => new Bitmap(stream);
+    public static Image FromStream(Stream stream, bool useEmbeddedColorManagement) => FromStream(stream);
 
-    public static Image FromStream(Stream stream, bool useEmbeddedColorManagement, bool validateImageData) => new Bitmap(stream);
+    public static Image FromStream(Stream stream, bool useEmbeddedColorManagement, bool validateImageData) => FromStream(stream);
+
+    /// <summary>Decodes raster images as <see cref="Bitmap"/> and SVG documents as <see cref="VectorImage"/>.</summary>
+    private static Image FromBytes(byte[] data) =>
+        VectorImage.IsSvg(data) ? VectorImage.FromSvg(data) : new Bitmap(new MemoryStream(data, false));
 
     public static int GetPixelFormatSize(PixelFormat pixfmt) => ((int)pixfmt >> 8) & 0xFF;
 
@@ -85,6 +99,8 @@ public abstract partial class Image : ICloneable, IDisposable
     {
         ArgumentNullException.ThrowIfNull(stream);
         ArgumentNullException.ThrowIfNull(format);
+        if (this is VectorImage vector && vector.TrySaveSvg(stream, format))
+            return;
         Encode(stream, format, DefaultJpegQuality);
     }
 

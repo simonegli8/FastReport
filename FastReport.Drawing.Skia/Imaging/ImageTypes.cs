@@ -98,6 +98,8 @@ public sealed class ImageFormat
     private static readonly ImageFormat icon = new(new Guid("b96b3cb5-0728-11d3-9d7b-0000f81ef32e"), "Icon");
     private static readonly ImageFormat heif = new(new Guid("b96b3cb6-0728-11d3-9d7b-0000f81ef32e"), "Heif");
     private static readonly ImageFormat webp = new(new Guid("b96b3cb7-0728-11d3-9d7b-0000f81ef32e"), "Webp");
+    // Not part of GDI+: SVG documents, loaded as VectorImage.
+    private static readonly ImageFormat svg = new(new Guid("b96b3cb8-0728-11d3-9d7b-0000f81ef32e"), "Svg");
 
     private readonly string? name;
 
@@ -137,6 +139,9 @@ public sealed class ImageFormat
     public static ImageFormat Heif => heif;
 
     public static ImageFormat Webp => webp;
+
+    /// <summary>SVG documents (not part of GDI+), see <see cref="VectorImage"/>.</summary>
+    public static ImageFormat Svg => svg;
 
     public override bool Equals(object? obj) => obj is ImageFormat other && other.Guid == Guid;
 

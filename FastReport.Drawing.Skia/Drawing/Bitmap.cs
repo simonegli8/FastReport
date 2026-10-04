@@ -52,6 +52,12 @@ public sealed class Bitmap : Image
     {
         ArgumentNullException.ThrowIfNull(original);
         using var canvas = new SKCanvas(bitmap);
+        if (original is VectorImage vector)
+        {
+            // Rendered at the target size rather than scaling a rasterization.
+            vector.Draw(canvas, new SKRect(0, 0, vector.Bounds.Width, vector.Bounds.Height), new SKRect(0, 0, width, height), null);
+            return;
+        }
         var sampling = width == original.Width && height == original.Height
             ? new SKSamplingOptions(SKFilterMode.Nearest)
             : new SKSamplingOptions(SKCubicResampler.Mitchell);
