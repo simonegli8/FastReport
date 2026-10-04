@@ -25,6 +25,9 @@ namespace FastReport.Export.Skia
         /// <summary>Gets or sets the vertical gap between stacked pages, in SVG units. Default is 10.</summary>
         public float PageGap { get; set; } = 10f;
 
+        /// <summary>Gets or sets whether URL hyperlinks are exported as clickable <c>&lt;a&gt;</c> elements. Default is true.</summary>
+        public bool ExportHyperlinks { get; set; } = true;
+
         /// <inheritdoc/>
         protected override float CanvasUnitsPerPixel => Zoom;
 
@@ -53,6 +56,14 @@ namespace FastReport.Export.Skia
             pages.Add(new RecordedPage(recorder.EndRecording(), currentBounds));
             recorder.Dispose();
             recorder = null;
+        }
+
+        /// <inheritdoc/>
+        protected override void OnComponentExported(ReportComponentBase component, SKRect bounds)
+        {
+            // Recorded into the page picture; the SVG canvas turns the annotation into an <a> element.
+            if (ExportHyperlinks && component.Hyperlink.Kind == HyperlinkKind.URL && !string.IsNullOrEmpty(component.Hyperlink.Value))
+                Graphics.Canvas.DrawUrlAnnotation(bounds, component.Hyperlink.Value);
         }
 
         /// <inheritdoc/>
