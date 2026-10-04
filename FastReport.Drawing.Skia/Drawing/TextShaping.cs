@@ -29,6 +29,12 @@ internal sealed class ShapedGlyphRun(SKFont font, int count)
 
     /// <summary>Index into the source string of the first character that produced each glyph.</summary>
     public int[] Clusters { get; } = new int[count];
+
+    /// <summary>Start of the source text this run was shaped from.</summary>
+    public int TextStart { get; init; }
+
+    /// <summary>Length of the source text this run was shaped from.</summary>
+    public int TextLength { get; init; }
 }
 
 /// <summary>The result of shaping a span of text: positioned glyph runs and per-character advances.</summary>
@@ -232,7 +238,7 @@ internal sealed class TextFont : IDisposable
                         }
                     }
                 }
-                builder.AddPositionedRun(run.Glyphs, font, run.Positions);
+                AddTextRun(builder, font, run, text);
             }
             using var blob = builder.Build();
             if (blob != null)
@@ -244,6 +250,58 @@ internal sealed class TextFont : IDisposable
             }
         }
         return x + shaped.Width;
+    }
+
+    /// <summary>
+    /// Adds a positioned run that also carries its source text (UTF-8) and, per glyph, the byte offset of the
+    /// characters it came from. Backends that extract text use this instead of guessing characters from glyphs:
+    /// the PDF backend writes /ActualText for clusters whose glyphs don't map 1:1 to characters (Arabic joining
+    /// forms, Indic conjuncts, ligatures), so copied text matches the original.
+    /// </summary>
+    private static void AddTextRun(SKTextBlobBuilder builder, SKFont font, ShapedGlyphRun run, string text)
+    {
+        int start = run.TextStart;
+        int length = run.TextLength;
+        if (length <= 0)
+        {
+            builder.AddPositionedRun(run.Glyphs, font, run.Positions);
+            return;
+        }
+
+        // UTF-8 byte offset of each UTF-16 unit of the run's text.
+        var byteOffsets = new int[length + 1];
+        int bytes = 0;
+        for (int i = 0; i < length; i++)
+        {
+            byteOffsets[i] = bytes;
+            char c = text[start + i];
+            if (char.IsHighSurrogate(c) && i + 1 < length && char.IsLowSurrogate(text[start + i + 1]))
+            {
+                byteOffsets[++i] = bytes;
+                bytes += 4;
+            }
+            else
+            {
+                bytes += c < 0x80 ? 1 : c < 0x800 ? 2 : 3;
+            }
+        }
+        byteOffsets[length] = bytes;
+
+        var utf8 = new byte[bytes];
+        System.Text.Encoding.UTF8.GetBytes(text, start, length, utf8, 0);
+
+        var clusters = new uint[run.Glyphs.Length];
+        for (int i = 0; i < clusters.Length; i++)
+        {
+            int index = run.Clusters[i] - start;
+            clusters[i] = (uint)byteOffsets[Math.Clamp(index, 0, length)];
+        }
+
+        var buffer = builder.AllocatePositionedTextRun(font, run.Glyphs.Length, bytes, null);
+        buffer.SetGlyphs(run.Glyphs);
+        buffer.SetPositions(run.Positions);
+        buffer.SetText(utf8);
+        buffer.SetClusters(clusters);
     }
 
     /// <summary>A copy of <paramref name="font"/> with another typeface (same glyph IDs, e.g. a subset).</summary>
@@ -351,7 +409,7 @@ internal sealed class TextFont : IDisposable
         var infos = buffer.GetGlyphInfoSpan();
         var positions = buffer.GetGlyphPositionSpan();
         float scale = item.Font.Size / hb.UnitsPerEm;
-        var run = new ShapedGlyphRun(item.Font, infos.Length);
+        var run = new ShapedGlyphRun(item.Font, infos.Length) { TextStart = item.Start, TextLength = item.Length };
         for (int i = 0; i < infos.Length; i++)
         {
             float advance = positions[i].XAdvance * scale * advanceScale;
@@ -377,7 +435,7 @@ internal sealed class TextFont : IDisposable
         var widths = item.Font.GetGlyphWidths(span);
         for (int i = 0; i < widths.Length; i++)
             widths[i] *= advanceScale;
-        var run = new ShapedGlyphRun(item.Font, glyphs.Length);
+        var run = new ShapedGlyphRun(item.Font, glyphs.Length) { TextStart = item.Start, TextLength = item.Length };
         int charIndex = item.Start;
         for (int i = 0; i < glyphs.Length; i++)
         {
