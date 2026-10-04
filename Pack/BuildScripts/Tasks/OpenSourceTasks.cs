@@ -6,8 +6,12 @@ partial class Program
 {
     readonly string[] projects_OpenSource =
     [
+      // FastReport.OpenSource depends on these two through project references
+      Path.Combine("FastReport.Drawing.Skia", "FastReport.Drawing.Skia.csproj"),
+      Path.Combine("FastReport.Compat", "FastReport.Compat", "FastReport.Compat.csproj"),
       Path.Combine("FastReport.OpenSource", "FastReport.OpenSource.csproj"),
       Path.Combine("FastReport.Core.Web", "FastReport.OpenSource.Web.csproj"),
+      Path.Combine("FastReport.WebForms", "FastReport.WebForms.csproj"),
       Path.Combine("Extras", "OpenSource", "FastReport.OpenSource.Export.PdfSimple", "FastReport.OpenSource.Export.PdfSimple", "FastReport.OpenSource.Export.PdfSimple.csproj")
     ];
 

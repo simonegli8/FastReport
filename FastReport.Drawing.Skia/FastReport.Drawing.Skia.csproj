@@ -15,6 +15,42 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
+  <!-- Package metadata, as in FastReport.Compat -->
+  <PropertyGroup>
+    <PackageId>FastReport.Drawing.Skia</PackageId>
+    <Authors>Fast Reports Inc.</Authors>
+    <Company>Fast Reports Inc.</Company>
+    <Product>FastReport</Product>
+    <Copyright>Copyright © Fast Reports Inc. 2007-2026</Copyright>
+    <Version>1.0.0</Version>
+    <PackageTags>reporting, reports, skia, skiasharp, drawing, system.drawing</PackageTags>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>https://www.fast-report.com/products/fast-report-net</PackageProjectUrl>
+    <PackageIcon>frlogo192.png</PackageIcon>
+    <RepositoryUrl>https://github.com/FastReports/FastReport</RepositoryUrl>
+    <RepositoryType>GIT</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\FastReport.Compat\LICENSE.md">
+      <Pack>True</Pack>
+      <Visible>false</Visible>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\Pack\frlogo192.png">
+      <Pack>True</Pack>
+      <Visible>false</Visible>
+      <PackagePath></PackagePath>
+    </None>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="SkiaSharp" Version="4.153.1" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="4.153.1" />
