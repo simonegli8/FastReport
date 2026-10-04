@@ -58,8 +58,9 @@ internal sealed class HarfBuzzTypeface
             return;
 
         using var blob = stream.ToHarfBuzzBlob();
-        using var face = new HbFace(blob, index) { Index = index, UnitsPerEm = typeface.UnitsPerEm };
+        var face = new HbFace(blob, index) { Index = index, UnitsPerEm = typeface.UnitsPerEm };
         UnitsPerEm = face.UnitsPerEm > 0 ? face.UnitsPerEm : 2048;
+        Face = face; // kept for font subsetting (FontSubsetScope)
         Font = new HbFont(face);
         // Shaping at the design-unit scale yields exact, unhinted advances that are scaled per font size.
         Font.SetScale(UnitsPerEm, UnitsPerEm);
@@ -68,6 +69,9 @@ internal sealed class HarfBuzzTypeface
 
     /// <summary>The HarfBuzz font, or null when the typeface data is not accessible.</summary>
     public HbFont? Font { get; }
+
+    /// <summary>The HarfBuzz face, or null when the typeface data is not accessible.</summary>
+    public HbFace? Face { get; }
 
     public int UnitsPerEm { get; }
 
@@ -206,15 +210,54 @@ internal sealed class TextFont : IDisposable
         var shaped = Shape(text, start, length);
         if (shaped.Runs.Count > 0)
         {
+            var subsetScope = FastReport.Drawing.Skia.FontSubsetScope.Current;
+            List<SKFont>? substitutes = null;
             using var builder = new SKTextBlobBuilder();
             foreach (var run in shaped.Runs)
-                builder.AddPositionedRun(run.Glyphs, run.Font, run.Positions);
+            {
+                var font = run.Font;
+                if (subsetScope != null)
+                {
+                    if (subsetScope.IsCollecting)
+                    {
+                        subsetScope.Record(font.Typeface, run.Glyphs, text, start, length);
+                    }
+                    else
+                    {
+                        var subset = subsetScope.Substitute(font.Typeface);
+                        if (!ReferenceEquals(subset, font.Typeface))
+                        {
+                            font = WithTypeface(font, subset);
+                            (substitutes ??= []).Add(font);
+                        }
+                    }
+                }
+                builder.AddPositionedRun(run.Glyphs, font, run.Positions);
+            }
             using var blob = builder.Build();
             if (blob != null)
                 canvas.DrawText(blob, x, y, paint);
+            if (substitutes != null)
+            {
+                foreach (var font in substitutes)
+                    font.Dispose();
+            }
         }
         return x + shaped.Width;
     }
+
+    /// <summary>A copy of <paramref name="font"/> with another typeface (same glyph IDs, e.g. a subset).</summary>
+    private static SKFont WithTypeface(SKFont font, SKTypeface typeface) => new(typeface, font.Size, font.ScaleX, font.SkewX)
+    {
+        Embolden = font.Embolden,
+        Edging = font.Edging,
+        Hinting = font.Hinting,
+        Subpixel = font.Subpixel,
+        LinearMetrics = font.LinearMetrics,
+        BaselineSnap = font.BaselineSnap,
+        EmbeddedBitmaps = font.EmbeddedBitmaps,
+        ForceAutoHinting = font.ForceAutoHinting,
+    };
 
     public float AppendToPath(SKPathBuilder path, string text, int start, int length, float x, float y)
     {
