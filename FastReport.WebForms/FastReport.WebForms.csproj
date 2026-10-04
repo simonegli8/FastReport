@@ -20,6 +20,37 @@
     </Description>
   </PropertyGroup>
 
+  <!-- Package metadata, as in FastReport.OpenSource.Web -->
+  <PropertyGroup>
+    <Copyright>Fast Reports Inc.</Copyright>
+    <Version>1.0.0</Version>
+    <PackageLicenseFile>FastReport MIT license.md</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>https://www.fast-report.com/products/fast-report-net</PackageProjectUrl>
+    <PackageIcon>frlogo192.png</PackageIcon>
+    <RepositoryUrl>https://github.com/FastReports/FastReport</RepositoryUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <!--See https://devblogs.microsoft.com/dotnet/producing-packages-with-source-link/#deterministic-builds -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\Pack\FastReport MIT license.md">
+      <Pack>True</Pack>
+      <Visible>false</Visible>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\Pack\frlogo192.png">
+      <Pack>True</Pack>
+      <Visible>false</Visible>
+      <PackagePath></PackagePath>
+    </None>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+  </ItemGroup>
+
   <ItemGroup Condition="$(TargetFramework) == 'net48'">
     <Reference Include="System.Web" />
   </ItemGroup>
