@@ -258,7 +258,10 @@ namespace FastReport.WebForms
             base.OnUnload(e);
         }
 
-        private void SendPdf()
+        /// <summary>
+        /// Sends the report as a vector PDF to the client. This is called automatically when the query string contains <c>fr_pdf={ClientID}</c>.
+        /// </summary>
+        public void SendPdf()
         {
             byte[] pdf = RenderPdf();
             string fileName = GetPdfFileName();
